@@ -1,0 +1,26 @@
+aws_region        = "us-west-2"
+app_name          = "planar-ai-app"
+stage             = "staging"
+base_domain_name  = "planar.your_domain.com"
+vpc_id            = "vpc-xxx"
+subnets           = ["subnet-xxx", "subnet-xxx", "subnet-xxx"]
+
+container_cpu    = 2048
+container_memory = 4096
+desired_count    = 1
+
+aurora_min_capacity    = 0.5
+aurora_max_capacity    = 2.0
+backup_retention_days  = 7
+
+cors_allowed_origins = [
+  "https://app.coplane.com",
+  "https://app.coplane.com/"
+]
+
+# Container registry configuration
+container_registry_url      = "ghcr.io"
+container_image_name        = "owner/repo"
+container_image_tag         = "latest"
+container_registry_username = "your-username"
+container_registry_password = "your-token-or-password"
