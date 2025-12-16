@@ -124,3 +124,9 @@ variable "alb_internal" {
   type        = bool
   default     = false
 }
+
+variable "waf_web_acl_arn" {
+  description = "ARN of the WAFv2 Web ACL to associate with the ALB. If not provided, no WAF association will be created."
+  type        = string
+  default     = null
+}
