@@ -32,6 +32,33 @@ data "aws_iam_policy_document" "ecs_execution_policy" {
       aws_secretsmanager_secret.registry_credentials.arn
     ]
   }
+
+  dynamic "statement" {
+    for_each = var.repository_name != null ? [1] : []
+    content {
+      sid = "ECRGetAuthorizationToken"
+      actions = [
+        "ecr:GetAuthorizationToken"
+      ]
+      resources = ["*"]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.repository_name != null ? [1] : []
+    content {
+      sid = "ECRRepositoryAccess"
+      actions = [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "ecr:DescribeRepositories"
+      ]
+      resources = [
+        aws_ecr_repository.main[0].arn
+      ]
+    }
+  }
 }
 
 resource "aws_iam_role_policy" "ecs_execution" {

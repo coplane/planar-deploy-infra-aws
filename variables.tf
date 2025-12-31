@@ -130,3 +130,9 @@ variable "waf_web_acl_arn" {
   type        = string
   default     = null
 }
+
+variable "repository_name" {
+  description = "Name of the ECR repository. If provided, a private ECR repository will be created."
+  type        = string
+  default     = null
+}
