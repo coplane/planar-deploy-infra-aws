@@ -38,59 +38,62 @@ resource "aws_ecs_task_definition" "main" {
   task_role_arn            = aws_iam_role.ecs_task.arn
 
   container_definitions = jsonencode([
-    {
-      name  = "planar-app"
-      image = "${var.container_registry_url}/${var.container_image_name}:${var.container_image_tag}"
-      
-      repositoryCredentials = {
-        credentialsParameter = aws_secretsmanager_secret.registry_credentials.arn
-      }
-      
-      portMappings = [
-        {
-          containerPort = 8000
-          hostPort      = 8000
-        }
-      ]
+    merge(
+      {
+        name  = "planar-app"
+        image = "${var.container_registry_url}/${var.container_image_name}:${var.container_image_tag}"
+        
+        portMappings = [
+          {
+            containerPort = 8000
+            hostPort      = 8000
+          }
+        ]
 
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          "awslogs-group"         = aws_cloudwatch_log_group.ecs.name
-          "awslogs-region"        = data.aws_region.current.id
-          "awslogs-stream-prefix" = "ecs"
+        logConfiguration = {
+          logDriver = "awslogs"
+          options = {
+            "awslogs-group"         = aws_cloudwatch_log_group.ecs.name
+            "awslogs-region"        = data.aws_region.current.id
+            "awslogs-stream-prefix" = "ecs"
+          }
         }
-      }
 
-      environment = [
-        {
-          name  = "DB_SECRET_NAME"
-          value = aws_rds_cluster.main.master_user_secret[0].secret_arn
-        },
-        {
-          name  = "DB_HOST"
-          value = aws_rds_cluster.main.endpoint
-        },
-        {
-          name  = "S3_BUCKET_NAME"
-          value = aws_s3_bucket.app_bucket.bucket
-        },
-        {
-          name  = "STAGE"
-          value = var.stage
-        },
-        {
-          name  = "APP_NAME"
-          value = var.app_name
-        },
-        {
-          name  = "CUSTOM_SECRET_NAME"
-          value = aws_secretsmanager_secret.custom_secret.name
+        environment = [
+          {
+            name  = "DB_SECRET_NAME"
+            value = aws_rds_cluster.main.master_user_secret[0].secret_arn
+          },
+          {
+            name  = "DB_HOST"
+            value = aws_rds_cluster.main.endpoint
+          },
+          {
+            name  = "S3_BUCKET_NAME"
+            value = aws_s3_bucket.app_bucket.bucket
+          },
+          {
+            name  = "STAGE"
+            value = var.stage
+          },
+          {
+            name  = "APP_NAME"
+            value = var.app_name
+          },
+          {
+            name  = "CUSTOM_SECRET_NAME"
+            value = aws_secretsmanager_secret.custom_secret.name
+          }
+        ]
+
+        essential = true
+      },
+      var.container_registry_username != null && var.container_registry_password != null ? {
+        repositoryCredentials = {
+          credentialsParameter = aws_secretsmanager_secret.registry_credentials[0].arn
         }
-      ]
-
-      essential = true
-    }
+      } : {}
+    )
   ])
 
   tags = local.common_tags

@@ -22,15 +22,18 @@ resource "aws_iam_role_policy_attachment" "ecs_execution" {
 }
 
 data "aws_iam_policy_document" "ecs_execution_policy" {
-  statement {
-    sid = "RegistryCredentialsAccess"
-    actions = [
-      "secretsmanager:GetSecretValue",
-      "secretsmanager:DescribeSecret"
-    ]
-    resources = [
-      aws_secretsmanager_secret.registry_credentials.arn
-    ]
+  dynamic "statement" {
+    for_each = var.container_registry_username != null && var.container_registry_password != null ? [1] : []
+    content {
+      sid = "RegistryCredentialsAccess"
+      actions = [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+      ]
+      resources = [
+        aws_secretsmanager_secret.registry_credentials[0].arn
+      ]
+    }
   }
 
   dynamic "statement" {

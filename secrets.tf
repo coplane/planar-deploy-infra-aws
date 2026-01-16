@@ -20,6 +20,7 @@ resource "aws_secretsmanager_secret_version" "custom_secret" {
 }
 
 resource "aws_secretsmanager_secret" "registry_credentials" {
+  count                   = var.container_registry_username != null && var.container_registry_password != null ? 1 : 0
   name                    = "registry-credentials${local.suffix}"
   description             = "Container registry credentials for ECS image pull"
   recovery_window_in_days = var.stage == "prod" ? 30 : 0
@@ -30,7 +31,8 @@ resource "aws_secretsmanager_secret" "registry_credentials" {
 }
 
 resource "aws_secretsmanager_secret_version" "registry_credentials" {
-  secret_id = aws_secretsmanager_secret.registry_credentials.id
+  count     = var.container_registry_username != null && var.container_registry_password != null ? 1 : 0
+  secret_id = aws_secretsmanager_secret.registry_credentials[0].id
   secret_string = jsonencode({
     username = var.container_registry_username
     password = var.container_registry_password

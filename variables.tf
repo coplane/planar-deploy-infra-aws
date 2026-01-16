@@ -109,14 +109,16 @@ variable "container_image_tag" {
 }
 
 variable "container_registry_username" {
-  description = "Username for container registry authentication"
+  description = "Username for container registry authentication. Required only for private registries."
   type        = string
+  default     = null
 }
 
 variable "container_registry_password" {
-  description = "Password or token for container registry authentication"
+  description = "Password or token for container registry authentication. Required only for private registries."
   type        = string
   sensitive   = true
+  default     = null
 }
 
 variable "alb_internal" {

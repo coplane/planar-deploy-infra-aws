@@ -74,6 +74,6 @@ output "container_image_url" {
 
 output "registry_credentials_secret_arn" {
   description = "ARN of the registry credentials secret"
-  value       = aws_secretsmanager_secret.registry_credentials.arn
+  value       = var.container_registry_username != null && var.container_registry_password != null ? aws_secretsmanager_secret.registry_credentials[0].arn : null
   sensitive   = true
 }
