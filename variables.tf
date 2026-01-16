@@ -138,3 +138,13 @@ variable "repository_name" {
   type        = string
   default     = null
 }
+
+variable "workos_client_id" {
+  description = "WorkOS client ID"
+  type        = string
+}
+
+variable "workos_org_id" {
+  description = "WorkOS organization ID"
+  type        = string
+}

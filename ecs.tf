@@ -83,6 +83,14 @@ resource "aws_ecs_task_definition" "main" {
           {
             name  = "CUSTOM_SECRET_NAME"
             value = aws_secretsmanager_secret.custom_secret.name
+          },
+          {
+            name  = "WORKOS_CLIENT_ID"
+            value = var.workos_client_id
+          },
+          {
+            name  = "WORKOS_ORG_ID"
+            value = var.workos_org_id
           }
         ]
 
