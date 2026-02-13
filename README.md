@@ -1,10 +1,10 @@
 # Terraform Planar AWS Infrastructure
 
-This Terraform configuration deploys a complete AWS infrastructure stack for the Planar application, including containerized application hosting, managed database, object storage, and networking components.
+This Terraform configuration deploys the Planar application to AWS — ECS Fargate for compute, Aurora PostgreSQL for the database, S3 for storage, and an ALB in front.
 
 ## Architecture Overview
 
-The infrastructure follows a serverless and containerized architecture pattern, leveraging AWS managed services for scalability, reliability, and operational simplicity. The solution is designed to run in private subnets with internal load balancing, ensuring security and network isolation.
+Everything runs in private subnets behind an internal load balancer. ECS tasks reach external services (Bedrock, WorkOS) via NAT gateway.
 
 ### High-Level Architecture
 
@@ -155,13 +155,70 @@ The infrastructure follows a serverless and containerized architecture pattern, 
   - Traffic egresses via NAT gateway from the private subnets.
   - No VPC endpoint for Bedrock is configured in this architecture.
 
+## VPC / Networking
+
+This module requires a VPC with public and private subnets. You have two options:
+
+### Option A: Use an existing VPC
+
+If you already have a VPC, pass the IDs directly:
+
+```hcl
+module "planar" {
+  source = "github.com/coplane/planar-deploy-infra-aws"
+
+  vpc_id      = "vpc-0123456789abcdef0"
+  subnets     = ["subnet-aaa", "subnet-bbb"]       # private subnets (ECS, RDS)
+  alb_subnets = ["subnet-ccc", "subnet-ddd"]       # public subnets (ALB)
+  # ... other variables
+}
+```
+
+Your VPC must have:
+- **Private subnets** with NAT gateway access (ECS tasks need outbound internet for AWS Bedrock, WorkOS, etc.)
+- **Public subnets** for the ALB (if internet-facing)
+- DNS support and DNS hostnames enabled
+
+### Option B: Create a new VPC with the included module
+
+If you don't have a VPC, use the bundled `modules/vpc` module:
+
+```hcl
+module "vpc" {
+  source = "github.com/coplane/planar-deploy-infra-aws//modules/vpc"
+
+  name       = "planar-prod"
+  cidr_block = "10.0.0.0/16"
+
+  availability_zone_count = 2    # 2 or 3 AZs
+  single_nat_gateway      = true # set false for HA (one NAT per AZ)
+}
+
+module "planar" {
+  source = "github.com/coplane/planar-deploy-infra-aws"
+
+  vpc_id      = module.vpc.vpc_id
+  subnets     = module.vpc.private_subnet_ids
+  alb_subnets = module.vpc.public_subnet_ids
+  # ... other variables
+}
+```
+
+The VPC module creates:
+- VPC with DNS support
+- Public subnets with internet gateway
+- Private subnets with NAT gateway
+- Route tables and associations
+
+See `examples/with-new-vpc/` and `examples/with-existing-vpc/` for complete examples.
+
 ## Dependencies
 
 ### External Dependencies (Must be provided)
-1. **VPC**: Existing VPC ID where resources will be deployed
-2. **Subnets**: List of private subnet IDs (minimum 2 recommended for high availability)
+1. **VPC**: Existing VPC or use the included `modules/vpc` module (see above)
+2. **Subnets**: Private and public subnet IDs (minimum 2 recommended for high availability)
 3. **Route53 Hosted Zone**: Existing hosted zone for the base domain
-4. **Container Registry**: 
+4. **Container Registry**:
    - Private container registry (e.g., GHCR, Docker Hub, ECR)
    - Registry credentials (username/password or token)
    - Container image must be available in the registry
