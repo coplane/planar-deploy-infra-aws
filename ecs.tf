@@ -191,7 +191,7 @@ resource "aws_ecs_service" "main" {
 }
 
 resource "aws_wafv2_web_acl_association" "alb" {
-  count        = var.waf_web_acl_arn != null && var.waf_web_acl_arn != "" ? 1 : 0
+  count        = var.waf_web_acl_arn != null || var.create_waf ? 1 : 0
   resource_arn = aws_lb.main.arn
-  web_acl_arn  = var.waf_web_acl_arn
+  web_acl_arn  = var.waf_web_acl_arn != null ? var.waf_web_acl_arn : aws_wafv2_web_acl.main[0].arn
 }
