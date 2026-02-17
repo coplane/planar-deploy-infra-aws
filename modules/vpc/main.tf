@@ -173,7 +173,7 @@ resource "aws_vpc_endpoint" "s3" {
   count = var.enable_s3_endpoint ? 1 : 0
 
   vpc_id       = aws_vpc.this.id
-  service_name = "com.amazonaws.${data.aws_region.current.name}.s3"
+  service_name = "com.amazonaws.${data.aws_region.current.id}.s3"
 
   tags = merge(var.tags, {
     Name = "${var.name}-s3"
