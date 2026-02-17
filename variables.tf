@@ -127,8 +127,14 @@ variable "alb_internal" {
   default     = false
 }
 
+variable "create_waf" {
+  description = "Create a WAFv2 Web ACL with AWS managed rules (CommonRuleSet, KnownBadInputsRuleSet) and attach it to the ALB. Ignored if waf_web_acl_arn is provided."
+  type        = bool
+  default     = false
+}
+
 variable "waf_web_acl_arn" {
-  description = "ARN of the WAFv2 Web ACL to associate with the ALB. If not provided, no WAF association will be created."
+  description = "ARN of an existing WAFv2 Web ACL to associate with the ALB. Takes precedence over create_waf."
   type        = string
   default     = null
 }
