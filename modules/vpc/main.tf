@@ -148,3 +148,34 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private[var.single_nat_gateway ? 0 : count.index].id
 }
+
+# ------------------------------------------------------------------------------
+# S3 Endpoint
+# ------------------------------------------------------------------------------
+
+data "aws_region" "current" {}
+
+resource "aws_vpc_endpoint" "s3" {
+  count = var.enable_s3_endpoint ? 1 : 0
+
+  vpc_id       = aws_vpc.this.id
+  service_name = "com.amazonaws.${data.aws_region.current.name}.s3"
+
+  tags = merge(var.tags, {
+    Name = "${var.name}-s3"
+  })
+}
+
+resource "aws_vpc_endpoint_route_table_association" "private_s3" {
+  count = var.enable_s3_endpoint ? local.nat_gateway_count : 0
+
+  route_table_id  = aws_route_table.private[count.index].id
+  vpc_endpoint_id = aws_vpc_endpoint.s3[0].id
+}
+
+resource "aws_vpc_endpoint_route_table_association" "public_s3" {
+  count = var.enable_s3_endpoint ? 1 : 0
+
+  route_table_id  = aws_route_table.public.id
+  vpc_endpoint_id = aws_vpc_endpoint.s3[0].id
+}
