@@ -31,6 +31,19 @@ resource "aws_vpc" "this" {
     Name = var.name
   })
 }
+# ------------------------------------------------------------------------------
+# Default Security Group
+# ------------------------------------------------------------------------------
+
+resource "aws_default_security_group" "this" {
+  vpc_id = aws_vpc.this.id
+
+  # No ingress or egress rules = "Deny All"
+
+  tags = merge(var.tags, {
+    Name = "${var.name}-default"
+  })
+}
 
 # ------------------------------------------------------------------------------
 # Internet Gateway
