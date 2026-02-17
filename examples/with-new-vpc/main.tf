@@ -39,12 +39,10 @@ module "planar" {
   subnets     = module.vpc.private_subnet_ids
   alb_subnets = module.vpc.public_subnet_ids
 
-  # Container configuration
-  container_registry_url      = "ghcr.io"
-  container_image_name        = "your-org/planar"
-  container_image_tag         = "latest"
-  container_registry_username = "your-username"
-  container_registry_password = "your-token"
+  # ECR repository name to create.
+  # Default public demo image will be pushed on terraform apply.
+  # ghcr.io/coplane/planar-demo-public:latest
+  repository_name = "myapp-repo"
 
   # WorkOS authentication
   workos_client_id = "client_xxx"

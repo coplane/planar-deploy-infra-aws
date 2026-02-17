@@ -69,7 +69,7 @@ output "aws_region" {
 
 output "container_image_url" {
   description = "Full container image URL being used"
-  value       = "${var.container_registry_url}/${var.container_image_name}:${var.container_image_tag}"
+  value       = var.repository_name != null ? "${aws_ecr_repository.main[0].repository_url}:latest" : "${var.container_registry_url}/${var.container_image_name}:${var.container_image_tag}"
 }
 
 output "registry_credentials_secret_arn" {
