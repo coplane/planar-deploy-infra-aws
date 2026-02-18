@@ -48,3 +48,8 @@ module "planar" {
   workos_client_id = "client_xxx"
   workos_org_id    = "org_xxx"
 }
+
+output "app_endpoint_url" {
+  description = "The full endpoint url of the application"
+  value       = module.planar.domain_name
+}

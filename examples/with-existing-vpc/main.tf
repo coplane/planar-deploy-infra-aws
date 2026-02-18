@@ -28,3 +28,7 @@ module "planar" {
   workos_client_id = "client_01JSJHJPKG09TMSK6NHJP0S180"
   workos_org_id    = "org_01JY4QP57Y7H4EQ7HT3BGN7TNK"
 }
+output "app_endpoint_url" {
+  description = "The full endpoint url of the application"
+  value       = module.planar.domain_name
+}
