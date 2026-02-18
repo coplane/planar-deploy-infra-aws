@@ -19,10 +19,13 @@ module "planar" {
   subnets     = ["subnet-aaa", "subnet-bbb"]
   alb_subnets = ["subnet-ccc", "subnet-ddd"]
 
-  # ECR repository name to create.
-  # Default public demo image will be pushed on terraform apply.
-  # ghcr.io/coplane/planar-demo-public:latest
-  repository_name = "myapp-repo"
+  container_registry_url      = "ghcr.io"
+  container_image_name        = "coplane/planar-demo-public"
+  container_image_tag         = "latest"
+
+  # Alternatively, you can create ECR and import the public demo image to it using:
+  # import_image_to_ecr = true
+  # repository_name     = "myapp-repo"
 
   # WorkOS authentication
   workos_client_id = "client_xxx"

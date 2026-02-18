@@ -144,7 +144,7 @@ variable "waf_web_acl_arn" {
 variable "repository_name" {
   description = "Name of the ECR repository. If provided, a private ECR repository will be created."
   type        = string
-  default     = "planar-ai-app-repo"
+  default     = null
 }
 
 variable "source_image" {
@@ -156,7 +156,7 @@ variable "source_image" {
 variable "import_image_to_ecr" {
   description = "Whether to import the source image to the created ECR repository"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "workos_client_id" {
