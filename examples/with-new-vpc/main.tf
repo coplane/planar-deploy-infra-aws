@@ -39,14 +39,20 @@ module "planar" {
   subnets     = module.vpc.private_subnet_ids
   alb_subnets = module.vpc.public_subnet_ids
 
-  # Container configuration
   container_registry_url      = "ghcr.io"
-  container_image_name        = "your-org/planar"
+  container_image_name        = "coplane/planar-demo-public"
   container_image_tag         = "latest"
-  container_registry_username = "your-username"
-  container_registry_password = "your-token"
+
+  # Alternatively, you can create ECR and import the public demo image to it using:
+  # import_image_to_ecr = true
+  # repository_name     = "myapp-repo"
 
   # WorkOS authentication
   workos_client_id = "client_xxx"
   workos_org_id    = "org_xxx"
+}
+
+output "app_endpoint_url" {
+  description = "The full endpoint url of the application"
+  value       = module.planar.domain_name
 }
