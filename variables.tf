@@ -148,3 +148,32 @@ variable "workos_org_id" {
   description = "WorkOS organization ID"
   type        = string
 }
+
+variable "telemetry_enabled" {
+  description = "Add Fluent Bit FireLens sidecar for metrics collection and log routing. Disable to opt out."
+  type        = bool
+  default     = true
+}
+
+variable "metrics_endpoint" {
+  description = "OTLP HTTP endpoint for metrics (Coplane telemetry gateway). Required when telemetry_enabled = true."
+  type        = string
+  default     = "https://telemetry.coplane.dev"
+
+  validation {
+    condition     = !var.telemetry_enabled || var.metrics_endpoint != null
+    error_message = "metrics_endpoint is required when telemetry_enabled = true."
+  }
+}
+
+variable "log_output_config" {
+  description = "Fluent Bit [OUTPUT] block(s) for log routing including Match pattern. When null, logs go to CloudWatch."
+  type        = string
+  default     = null
+}
+
+variable "log_output_secrets" {
+  description = "Secrets to inject into the Fluent Bit container for log output credentials. Map of env var name to Secrets Manager ARN."
+  type        = map(string)
+  default     = {}
+}

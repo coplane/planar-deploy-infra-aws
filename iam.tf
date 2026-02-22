@@ -62,6 +62,31 @@ data "aws_iam_policy_document" "ecs_execution_policy" {
       ]
     }
   }
+
+  dynamic "statement" {
+    for_each = var.telemetry_enabled ? [1] : []
+    content {
+      sid = "FluentBitConfigS3Access"
+      actions = [
+        "s3:GetObject"
+      ]
+      resources = [
+        "${aws_s3_bucket.app_bucket.arn}/${local.fluent_bit_config_s3_key}"
+      ]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.telemetry_enabled && length(var.log_output_secrets) > 0 ? [1] : []
+    content {
+      sid = "FluentBitLogOutputSecretsAccess"
+      actions = [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+      ]
+      resources = values(var.log_output_secrets)
+    }
+  }
 }
 
 resource "aws_iam_role_policy" "ecs_execution" {
@@ -124,6 +149,24 @@ data "aws_iam_policy_document" "ecs_task_policy" {
       "bedrock:GetFoundationModel"
     ]
     resources = ["*"]
+  }
+
+  # Fluent Bit cloudwatch_logs output plugin writes logs using the task role
+  dynamic "statement" {
+    for_each = var.telemetry_enabled && var.log_output_config == null ? [1] : []
+    content {
+      sid = "FluentBitCloudWatchLogs"
+      actions = [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams"
+      ]
+      resources = [
+        aws_cloudwatch_log_group.ecs.arn,
+        "${aws_cloudwatch_log_group.ecs.arn}:*"
+      ]
+    }
   }
 }
 
