@@ -99,6 +99,14 @@ resource "aws_ecs_task_definition" "main" {
               {
                 name  = "OTEL_EXPORTER_OTLP_ENDPOINT"
                 value = "http://localhost:4317"
+              },
+              {
+                name  = "OTEL_SERVICE_NAME"
+                value = var.app_name
+              },
+              {
+                name  = "OTEL_RESOURCE_ATTRIBUTES"
+                value = "deployment.environment=${var.stage}"
               }
             ] : []
           )
