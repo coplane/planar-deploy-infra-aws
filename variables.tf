@@ -187,7 +187,7 @@ variable "metrics_endpoint" {
 }
 
 variable "log_output_config" {
-  description = "OTel Collector YAML config fragment for log sinks. Must define exporters and service.pipelines.logs. Merged with the base config via a second --config flag. When null, no log pipeline is configured."
+  description = "OTel Collector YAML config fragment for routing OTel-instrumented logs emitted by the app via OTLP. Must define exporters and service.pipelines.logs. Merged with the base config via a second --config flag. When null, no log pipeline is configured. Note: container stdout/stderr is always routed to CloudWatch via awslogs and is unaffected by this variable."
   type        = string
   default     = null
 }
