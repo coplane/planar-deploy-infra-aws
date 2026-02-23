@@ -170,13 +170,13 @@ variable "workos_org_id" {
 }
 
 variable "telemetry_enabled" {
-  description = "Add Fluent Bit FireLens sidecar for metrics collection and log routing. Disable to opt out."
+  description = "Add an OTel Collector sidecar for metrics and log forwarding. Disable to opt out."
   type        = bool
   default     = true
 }
 
 variable "metrics_endpoint" {
-  description = "OTLP HTTP endpoint for metrics (Coplane telemetry gateway). Required when telemetry_enabled = true."
+  description = "OTLP HTTP base URL for the metrics exporter (Coplane telemetry gateway). Required when telemetry_enabled = true."
   type        = string
   default     = "https://telemetry.coplane.dev"
 
@@ -187,13 +187,13 @@ variable "metrics_endpoint" {
 }
 
 variable "log_output_config" {
-  description = "Fluent Bit [OUTPUT] block(s) for log routing including Match pattern. When null, logs go to CloudWatch."
+  description = "OTel Collector YAML config fragment for log sinks. Must define exporters and service.pipelines.logs. Merged with the base config via a second --config flag. When null, no log pipeline is configured."
   type        = string
   default     = null
 }
 
 variable "log_output_secrets" {
-  description = "Secrets to inject into the Fluent Bit container for log output credentials. Map of env var name to Secrets Manager ARN."
+  description = "Secrets to inject into the OTel Collector container for log exporter credentials. Map of env var name to Secrets Manager ARN."
   type        = map(string)
   default     = {}
 }

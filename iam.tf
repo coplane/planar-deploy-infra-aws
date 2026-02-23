@@ -64,22 +64,9 @@ data "aws_iam_policy_document" "ecs_execution_policy" {
   }
 
   dynamic "statement" {
-    for_each = var.telemetry_enabled ? [1] : []
-    content {
-      sid = "FluentBitConfigS3Access"
-      actions = [
-        "s3:GetObject"
-      ]
-      resources = [
-        "${aws_s3_bucket.app_bucket.arn}/${local.fluent_bit_config_s3_key}"
-      ]
-    }
-  }
-
-  dynamic "statement" {
     for_each = var.telemetry_enabled && length(var.log_output_secrets) > 0 ? [1] : []
     content {
-      sid = "FluentBitLogOutputSecretsAccess"
+      sid = "OtelCollectorLogOutputSecretsAccess"
       actions = [
         "secretsmanager:GetSecretValue",
         "secretsmanager:DescribeSecret"
@@ -90,7 +77,11 @@ data "aws_iam_policy_document" "ecs_execution_policy" {
 }
 
 resource "aws_iam_role_policy" "ecs_execution" {
-  count  = var.repository_name != null ? 1 : 0
+  count = (
+    var.repository_name != null ||
+    (var.container_registry_username != null && var.container_registry_password != null) ||
+    (var.telemetry_enabled && length(var.log_output_secrets) > 0)
+  ) ? 1 : 0
   name   = "ecs-execution-policy${local.suffix}"
   role   = aws_iam_role.ecs_execution.id
   policy = data.aws_iam_policy_document.ecs_execution_policy.json
@@ -152,23 +143,6 @@ data "aws_iam_policy_document" "ecs_task_policy" {
     resources = ["*"]
   }
 
-  # Fluent Bit cloudwatch_logs output plugin writes logs using the task role
-  dynamic "statement" {
-    for_each = var.telemetry_enabled && var.log_output_config == null ? [1] : []
-    content {
-      sid = "FluentBitCloudWatchLogs"
-      actions = [
-        "logs:CreateLogStream",
-        "logs:PutLogEvents",
-        "logs:DescribeLogGroups",
-        "logs:DescribeLogStreams"
-      ]
-      resources = [
-        aws_cloudwatch_log_group.ecs.arn,
-        "${aws_cloudwatch_log_group.ecs.arn}:*"
-      ]
-    }
-  }
 }
 
 resource "aws_iam_role_policy" "ecs_task" {

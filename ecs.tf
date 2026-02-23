@@ -51,10 +51,7 @@ resource "aws_ecs_task_definition" "main" {
             }
           ]
 
-          logConfiguration = var.telemetry_enabled ? {
-            logDriver = "awsfirelens"
-            options   = {}
-          } : {
+          logConfiguration = {
             logDriver = "awslogs"
             options = {
               "awslogs-group"         = aws_cloudwatch_log_group.ecs.name
@@ -63,40 +60,48 @@ resource "aws_ecs_task_definition" "main" {
             }
           }
 
-          environment = [
-            {
-              name  = "DB_SECRET_NAME"
-              value = aws_rds_cluster.main.master_user_secret[0].name
-            },
-            {
-              name  = "DB_HOST"
-              value = aws_rds_cluster.main.endpoint
-            },
-            {
-              name  = "S3_BUCKET_NAME"
-              value = aws_s3_bucket.app_bucket.bucket
-            },
-            {
-              name  = "STAGE"
-              value = var.stage
-            },
-            {
-              name  = "APP_NAME"
-              value = var.app_name
-            },
-            {
-              name  = "CUSTOM_SECRET_NAME"
-              value = aws_secretsmanager_secret.custom_secret.name
-            },
-            {
-              name  = "WORKOS_CLIENT_ID"
-              value = var.workos_client_id
-            },
-            {
-              name  = "WORKOS_ORG_ID"
-              value = var.workos_org_id
-            }
-          ]
+          environment = concat(
+            [
+              {
+                name  = "DB_SECRET_NAME"
+                value = aws_rds_cluster.main.master_user_secret[0].name
+              },
+              {
+                name  = "DB_HOST"
+                value = aws_rds_cluster.main.endpoint
+              },
+              {
+                name  = "S3_BUCKET_NAME"
+                value = aws_s3_bucket.app_bucket.bucket
+              },
+              {
+                name  = "STAGE"
+                value = var.stage
+              },
+              {
+                name  = "APP_NAME"
+                value = var.app_name
+              },
+              {
+                name  = "CUSTOM_SECRET_NAME"
+                value = aws_secretsmanager_secret.custom_secret.name
+              },
+              {
+                name  = "WORKOS_CLIENT_ID"
+                value = var.workos_client_id
+              },
+              {
+                name  = "WORKOS_ORG_ID"
+                value = var.workos_org_id
+              }
+            ],
+            var.telemetry_enabled ? [
+              {
+                name  = "OTEL_EXPORTER_OTLP_ENDPOINT"
+                value = "http://localhost:4317"
+              }
+            ] : []
+          )
 
           essential = true
         },
@@ -109,25 +114,45 @@ resource "aws_ecs_task_definition" "main" {
     ],
     var.telemetry_enabled ? [
       {
-        name      = "log_router"
-        image     = "public.ecr.aws/aws-observability/aws-for-fluent-bit:stable"
+        name      = "otel-collector"
+        image     = "otel/opentelemetry-collector-contrib:0.118.0"
         essential = true
 
-        firelensConfiguration = {
-          type = "fluentbit"
-          options = {
-            "enable-ecs-log-metadata" = "true"
-            "config-file-type"        = "s3"
-            "config-file-value"       = "arn:aws:s3:::${aws_s3_bucket.app_bucket.id}/${local.fluent_bit_config_s3_key}"
-          }
+        command = var.log_output_config != null ? [
+          "--config", "env:OTELCOL_BASE_CONFIG",
+          "--config", "env:OTELCOL_LOG_CONFIG"
+        ] : ["--config", "env:OTELCOL_BASE_CONFIG"]
+
+        portMappings = [
+          { containerPort = 4317, hostPort = 4317 },
+          { containerPort = 4318, hostPort = 4318 },
+          { containerPort = 13133, hostPort = 13133 },
+        ]
+
+        environment = concat(
+          [
+            { name = "METRICS_ENDPOINT", value = var.metrics_endpoint },
+            { name = "OTELCOL_BASE_CONFIG", value = local.otel_base_config },
+          ],
+          var.log_output_config != null ? [
+            { name = "OTELCOL_LOG_CONFIG", value = var.log_output_config }
+          ] : []
+        )
+
+        healthCheck = {
+          command     = ["CMD-SHELL", "wget -q --spider http://localhost:13133/health/status || exit 1"]
+          interval    = 30
+          timeout     = 5
+          retries     = 3
+          startPeriod = 15
         }
 
         logConfiguration = {
           logDriver = "awslogs"
           options = {
-            "awslogs-group"         = aws_cloudwatch_log_group.fluent_bit[0].name
+            "awslogs-group"         = aws_cloudwatch_log_group.otel_collector[0].name
             "awslogs-region"        = data.aws_region.current.id
-            "awslogs-stream-prefix" = "fluent-bit"
+            "awslogs-stream-prefix" = "otel-collector"
           }
         }
 
