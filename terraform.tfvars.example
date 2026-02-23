@@ -18,9 +18,3 @@ cors_allowed_origins = [
   "https://app.coplane.com/"
 ]
 
-# Container registry configuration
-container_registry_url      = "ghcr.io"
-container_image_name        = "owner/repo"
-container_image_tag         = "latest"
-container_registry_username = "your-username"
-container_registry_password = "your-token-or-password"

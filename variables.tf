@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "us-east-1"
+  default     = "us-west-2"
 }
 
 variable "aws_profile" {
@@ -95,11 +95,13 @@ variable "cors_allowed_origins" {
 variable "container_registry_url" {
   description = "Base URL of the private container registry (e.g., ghcr.io, docker.io, registry.example.com)"
   type        = string
+  default     = null
 }
 
 variable "container_image_name" {
   description = "Full image path including owner/repo (e.g., owner/repo or username/repo)"
   type        = string
+  default     = null
 }
 
 variable "container_image_tag" {
@@ -127,8 +129,14 @@ variable "alb_internal" {
   default     = false
 }
 
+variable "create_waf" {
+  description = "Create a WAFv2 Web ACL with AWS managed rules (CommonRuleSet, KnownBadInputsRuleSet) and attach it to the ALB. Ignored if waf_web_acl_arn is provided."
+  type        = bool
+  default     = false
+}
+
 variable "waf_web_acl_arn" {
-  description = "ARN of the WAFv2 Web ACL to associate with the ALB. If not provided, no WAF association will be created."
+  description = "ARN of an existing WAFv2 Web ACL to associate with the ALB. Takes precedence over create_waf."
   type        = string
   default     = null
 }
@@ -137,6 +145,18 @@ variable "repository_name" {
   description = "Name of the ECR repository. If provided, a private ECR repository will be created."
   type        = string
   default     = null
+}
+
+variable "source_image" {
+  description = "Public Docker image to import into ECR (e.g. nginx:latest)"
+  type        = string
+  default     = "ghcr.io/coplane/planar-demo-public:latest"
+}
+
+variable "import_image_to_ecr" {
+  description = "Whether to import the source image to the created ECR repository"
+  type        = bool
+  default     = false
 }
 
 variable "workos_client_id" {

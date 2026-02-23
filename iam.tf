@@ -90,6 +90,7 @@ data "aws_iam_policy_document" "ecs_execution_policy" {
 }
 
 resource "aws_iam_role_policy" "ecs_execution" {
+  count  = var.repository_name != null ? 1 : 0
   name   = "ecs-execution-policy${local.suffix}"
   role   = aws_iam_role.ecs_execution.id
   policy = data.aws_iam_policy_document.ecs_execution_policy.json

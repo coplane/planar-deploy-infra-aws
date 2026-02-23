@@ -42,7 +42,7 @@ resource "aws_ecs_task_definition" "main" {
       merge(
         {
           name  = "planar-app"
-          image = "${var.container_registry_url}/${var.container_image_name}:${var.container_image_tag}"
+          image = var.repository_name != null ? "${aws_ecr_repository.main[0].repository_url}:latest" : "${var.container_registry_url}/${var.container_image_name}:${var.container_image_tag}"
 
           portMappings = [
             {
@@ -66,7 +66,7 @@ resource "aws_ecs_task_definition" "main" {
           environment = [
             {
               name  = "DB_SECRET_NAME"
-              value = aws_rds_cluster.main.master_user_secret[0].secret_arn
+              value = aws_rds_cluster.main.master_user_secret[0].name
             },
             {
               name  = "DB_HOST"
@@ -228,7 +228,7 @@ resource "aws_ecs_service" "main" {
 }
 
 resource "aws_wafv2_web_acl_association" "alb" {
-  count        = var.waf_web_acl_arn != null && var.waf_web_acl_arn != "" ? 1 : 0
+  count        = var.waf_web_acl_arn != null || var.create_waf ? 1 : 0
   resource_arn = aws_lb.main.arn
-  web_acl_arn  = var.waf_web_acl_arn
+  web_acl_arn  = var.waf_web_acl_arn != null ? var.waf_web_acl_arn : aws_wafv2_web_acl.main[0].arn
 }
