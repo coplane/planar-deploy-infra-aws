@@ -141,6 +141,7 @@ resource "aws_ecs_task_definition" "main" {
           [
             { name = "METRICS_ENDPOINT", value = var.metrics_endpoint },
             { name = "OTELCOL_BASE_CONFIG", value = local.otel_base_config },
+            { name = "TELEMETRY_TOKEN", value = coalesce(var.telemetry_token, "") },
           ],
           var.log_output_config != null ? [
             { name = "OTELCOL_LOG_CONFIG", value = var.log_output_config }

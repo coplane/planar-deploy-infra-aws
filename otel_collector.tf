@@ -22,6 +22,8 @@ locals {
     exporters:
       otlphttp/metrics:
         endpoint: $${env:METRICS_ENDPOINT}
+        headers:
+          authorization: "Bearer $${env:TELEMETRY_TOKEN}"
 
     service:
       extensions: [health_check]

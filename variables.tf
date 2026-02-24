@@ -197,3 +197,10 @@ variable "log_output_secrets" {
   type        = map(string)
   default     = {}
 }
+
+variable "telemetry_token" {
+  description = "Bearer token for authenticating with the Coplane telemetry gateway. Provided during onboarding."
+  type        = string
+  sensitive   = true
+  default     = null
+}
