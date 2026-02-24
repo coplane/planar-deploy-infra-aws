@@ -37,72 +37,142 @@ resource "aws_ecs_task_definition" "main" {
   execution_role_arn       = aws_iam_role.ecs_execution.arn
   task_role_arn            = aws_iam_role.ecs_task.arn
 
-  container_definitions = jsonencode([
-    merge(
-      {
-        name  = "planar-app"
-        image = var.repository_name != null ? "${aws_ecr_repository.main[0].repository_url}:latest" : "${var.container_registry_url}/${var.container_image_name}:${var.container_image_tag}"
-        
-        portMappings = [
-          {
-            containerPort = 8000
-            hostPort      = 8000
+  container_definitions = jsonencode(concat(
+    [
+      merge(
+        {
+          name  = "planar-app"
+          image = var.repository_name != null ? "${aws_ecr_repository.main[0].repository_url}:latest" : "${var.container_registry_url}/${var.container_image_name}:${var.container_image_tag}"
+
+          portMappings = [
+            {
+              containerPort = 8000
+              hostPort      = 8000
+            }
+          ]
+
+          logConfiguration = {
+            logDriver = "awslogs"
+            options = {
+              "awslogs-group"         = aws_cloudwatch_log_group.ecs.name
+              "awslogs-region"        = data.aws_region.current.id
+              "awslogs-stream-prefix" = "ecs"
+            }
           }
+
+          environment = concat(
+            [
+              {
+                name  = "DB_SECRET_NAME"
+                value = aws_rds_cluster.main.master_user_secret[0].name
+              },
+              {
+                name  = "DB_HOST"
+                value = aws_rds_cluster.main.endpoint
+              },
+              {
+                name  = "S3_BUCKET_NAME"
+                value = aws_s3_bucket.app_bucket.bucket
+              },
+              {
+                name  = "STAGE"
+                value = var.stage
+              },
+              {
+                name  = "APP_NAME"
+                value = var.app_name
+              },
+              {
+                name  = "CUSTOM_SECRET_NAME"
+                value = aws_secretsmanager_secret.custom_secret.name
+              },
+              {
+                name  = "WORKOS_CLIENT_ID"
+                value = var.workos_client_id
+              },
+              {
+                name  = "WORKOS_ORG_ID"
+                value = var.workos_org_id
+              }
+            ],
+            var.telemetry_enabled ? [
+              {
+                name  = "OTEL_EXPORTER_OTLP_ENDPOINT"
+                value = "http://localhost:4317"
+              },
+              {
+                name  = "OTEL_SERVICE_NAME"
+                value = var.app_name
+              },
+              {
+                name  = "OTEL_RESOURCE_ATTRIBUTES"
+                value = "deployment.environment=${var.stage}"
+              }
+            ] : []
+          )
+
+          essential = true
+        },
+        var.container_registry_username != null && var.container_registry_password != null ? {
+          repositoryCredentials = {
+            credentialsParameter = aws_secretsmanager_secret.registry_credentials[0].arn
+          }
+        } : {}
+      )
+    ],
+    var.telemetry_enabled ? [
+      {
+        name      = "otel-collector"
+        image     = "otel/opentelemetry-collector-contrib:0.118.0"
+        essential = true
+
+        command = var.log_output_config != null ? [
+          "--config", "env:OTELCOL_BASE_CONFIG",
+          "--config", "env:OTELCOL_LOG_CONFIG"
+        ] : ["--config", "env:OTELCOL_BASE_CONFIG"]
+
+        portMappings = [
+          { containerPort = 4317, hostPort = 4317 },
+          { containerPort = 4318, hostPort = 4318 },
+          { containerPort = 13133, hostPort = 13133 },
         ]
+
+        environment = concat(
+          [
+            { name = "METRICS_ENDPOINT", value = var.metrics_endpoint },
+            { name = "OTELCOL_BASE_CONFIG", value = local.otel_base_config },
+          ],
+          var.log_output_config != null ? [
+            { name = "OTELCOL_LOG_CONFIG", value = var.log_output_config }
+          ] : []
+        )
+
+        healthCheck = {
+          command     = ["CMD-SHELL", "wget -q --spider http://localhost:13133/health/status || exit 1"]
+          interval    = 30
+          timeout     = 5
+          retries     = 3
+          startPeriod = 15
+        }
 
         logConfiguration = {
           logDriver = "awslogs"
           options = {
-            "awslogs-group"         = aws_cloudwatch_log_group.ecs.name
+            "awslogs-group"         = aws_cloudwatch_log_group.otel_collector[0].name
             "awslogs-region"        = data.aws_region.current.id
-            "awslogs-stream-prefix" = "ecs"
+            "awslogs-stream-prefix" = "otel-collector"
           }
         }
 
-        environment = [
-          {
-            name  = "DB_SECRET_NAME"
-            value = aws_rds_cluster.main.master_user_secret[0].name
-          },
-          {
-            name  = "DB_HOST"
-            value = aws_rds_cluster.main.endpoint
-          },
-          {
-            name  = "S3_BUCKET_NAME"
-            value = aws_s3_bucket.app_bucket.bucket
-          },
-          {
-            name  = "STAGE"
-            value = var.stage
-          },
-          {
-            name  = "APP_NAME"
-            value = var.app_name
-          },
-          {
-            name  = "CUSTOM_SECRET_NAME"
-            value = aws_secretsmanager_secret.custom_secret.name
-          },
-          {
-            name  = "WORKOS_CLIENT_ID"
-            value = var.workos_client_id
-          },
-          {
-            name  = "WORKOS_ORG_ID"
-            value = var.workos_org_id
+        secrets = [
+          for name, arn in var.log_output_secrets : {
+            name      = name
+            valueFrom = arn
           }
         ]
-
-        essential = true
-      },
-      var.container_registry_username != null && var.container_registry_password != null ? {
-        repositoryCredentials = {
-          credentialsParameter = aws_secretsmanager_secret.registry_credentials[0].arn
-        }
-      } : {}
-    )
-  ])
+      }
+    ] : []
+  ))
 
   tags = local.common_tags
 }

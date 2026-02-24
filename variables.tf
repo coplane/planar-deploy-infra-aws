@@ -168,3 +168,32 @@ variable "workos_org_id" {
   description = "WorkOS organization ID"
   type        = string
 }
+
+variable "telemetry_enabled" {
+  description = "Add an OTel Collector sidecar for metrics and log forwarding. Disable to opt out."
+  type        = bool
+  default     = true
+}
+
+variable "metrics_endpoint" {
+  description = "OTLP HTTP base URL for the metrics exporter (Coplane telemetry gateway). Required when telemetry_enabled = true."
+  type        = string
+  default     = "https://telemetry.coplane.dev"
+
+  validation {
+    condition     = !var.telemetry_enabled || var.metrics_endpoint != null
+    error_message = "metrics_endpoint is required when telemetry_enabled = true."
+  }
+}
+
+variable "log_output_config" {
+  description = "OTel Collector YAML config fragment for routing OTel-instrumented logs emitted by the app via OTLP. Must define exporters and service.pipelines.logs. Merged with the base config via a second --config flag. When null, no log pipeline is configured. Note: container stdout/stderr is always routed to CloudWatch via awslogs and is unaffected by this variable."
+  type        = string
+  default     = null
+}
+
+variable "log_output_secrets" {
+  description = "Secrets to inject into the OTel Collector container for log exporter credentials. Map of env var name to Secrets Manager ARN."
+  type        = map(string)
+  default     = {}
+}
