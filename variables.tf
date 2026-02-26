@@ -30,6 +30,12 @@ variable "hosted_zone_id" {
   default     = null
 }
 
+variable "skip_zone_lookup" {
+  description = "Set to true when passing hosted_zone_id to skip the Route53 zone data source lookup."
+  type        = bool
+  default     = false
+}
+
 variable "vpc_id" {
   description = "VPC ID where resources will be created"
   type        = string

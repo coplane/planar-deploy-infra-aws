@@ -13,14 +13,14 @@ terraform {
 }
 
 data "aws_route53_zone" "main" {
-  count = var.hosted_zone_id == null ? 1 : 0
+  count = var.skip_zone_lookup ? 0 : 1
   name  = var.base_domain_name
 }
 
 locals {
   suffix           = "-${var.stage}-${var.app_name}"
   full_domain_name = "${var.app_name}-${var.stage}.${var.base_domain_name}"
-  zone_id          = var.hosted_zone_id != null ? var.hosted_zone_id : data.aws_route53_zone.main[0].zone_id
+  zone_id          = var.skip_zone_lookup ? var.hosted_zone_id : data.aws_route53_zone.main[0].zone_id
 
   common_tags = {
     "framework"         = "planar"
