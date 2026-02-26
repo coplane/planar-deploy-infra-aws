@@ -25,15 +25,8 @@ variable "base_domain_name" {
 }
 
 variable "hosted_zone_id" {
-  description = "Route53 hosted zone ID. If provided, skips the zone data source lookup. Use when the zone is created in the same Terraform run."
+  description = "Route53 hosted zone ID for DNS records and ACM certificate validation"
   type        = string
-  default     = null
-}
-
-variable "skip_zone_lookup" {
-  description = "Set to true when passing hosted_zone_id to skip the Route53 zone data source lookup."
-  type        = bool
-  default     = false
 }
 
 variable "vpc_id" {

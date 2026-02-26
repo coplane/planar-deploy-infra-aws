@@ -22,6 +22,7 @@ module "planar" {
   stage            = "prod"
   aws_region       = "us-east-1"
   base_domain_name = "example.com"
+  hosted_zone_id   = "Z0123456789ABCDEF"
 
   vpc_id      = "vpc-0123456789abcdef0"
   subnets     = ["subnet-aaa", "subnet-bbb"]
