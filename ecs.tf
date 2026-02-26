@@ -64,7 +64,7 @@ resource "aws_ecs_task_definition" "main" {
             [
               {
                 name  = "DB_SECRET_NAME"
-                value = aws_rds_cluster.main.master_user_secret[0].name
+                value = aws_rds_cluster.main.master_user_secret[0].secret_arn
               },
               {
                 name  = "DB_HOST"

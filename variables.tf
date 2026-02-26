@@ -4,11 +4,6 @@ variable "aws_region" {
   default     = "us-west-2"
 }
 
-variable "aws_profile" {
-  description = "AWS profile to use for authentication"
-  type        = string
-  default     = null
-}
 
 variable "app_name" {
   description = "Application name"
@@ -26,6 +21,11 @@ variable "stage" {
 
 variable "base_domain_name" {
   description = "Base domain name for Route53 hosted zone"
+  type        = string
+}
+
+variable "hosted_zone_id" {
+  description = "Route53 hosted zone ID for DNS records and ACM certificate validation"
   type        = string
 }
 
