@@ -12,10 +12,16 @@ terraform {
   }
 }
 
+data "aws_route53_zone" "main" {
+  count = var.hosted_zone_id == null ? 1 : 0
+  name  = var.base_domain_name
+}
+
 locals {
-  suffix          = "-${var.stage}-${var.app_name}"
+  suffix           = "-${var.stage}-${var.app_name}"
   full_domain_name = "${var.app_name}-${var.stage}.${var.base_domain_name}"
-  
+  zone_id          = var.hosted_zone_id != null ? var.hosted_zone_id : data.aws_route53_zone.main[0].zone_id
+
   common_tags = {
     "framework"         = "planar"
     "framework.version" = "0.17"
@@ -36,10 +42,6 @@ data "aws_subnets" "private" {
     name   = "subnet-id"
     values = var.subnets
   }
-}
-
-data "aws_route53_zone" "main" {
-  name = var.base_domain_name
 }
 
 data "aws_region" "current" {}

@@ -24,6 +24,12 @@ variable "base_domain_name" {
   type        = string
 }
 
+variable "hosted_zone_id" {
+  description = "Route53 hosted zone ID. If provided, skips the zone data source lookup. Use when the zone is created in the same Terraform run."
+  type        = string
+  default     = null
+}
+
 variable "vpc_id" {
   description = "VPC ID where resources will be created"
   type        = string
