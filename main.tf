@@ -10,14 +10,6 @@ terraform {
       version = ">= 3.1"
     }
   }
-
-  backend "s3" {}
-
-}
-
-provider "aws" {
-  region  = var.aws_region
-  profile = var.aws_profile
 }
 
 locals {

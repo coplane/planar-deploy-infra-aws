@@ -4,11 +4,6 @@ variable "aws_region" {
   default     = "us-west-2"
 }
 
-variable "aws_profile" {
-  description = "AWS profile to use for authentication"
-  type        = string
-  default     = null
-}
 
 variable "app_name" {
   description = "Application name"
