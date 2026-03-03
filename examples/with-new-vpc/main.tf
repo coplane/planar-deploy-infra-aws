@@ -33,6 +33,7 @@ module "planar" {
   stage            = "prod"
   aws_region       = "us-east-1"
   base_domain_name = "example.com"
+  hosted_zone_id   = "Z0123456789ABCDEF"
 
   # Wire VPC module outputs to Planar inputs
   vpc_id      = module.vpc.vpc_id

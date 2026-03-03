@@ -58,6 +58,10 @@ resource "aws_rds_cluster_instance" "cluster_instances" {
   })
 }
 
+data "aws_secretsmanager_secret" "db_secret" {
+  arn = aws_rds_cluster.main.master_user_secret[0].secret_arn
+}
+
 resource "aws_iam_role" "rds_monitoring" {
   name = "rds-monitoring-role${local.suffix}"
 

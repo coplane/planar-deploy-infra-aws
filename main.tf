@@ -10,20 +10,13 @@ terraform {
       version = ">= 3.1"
     }
   }
-
-  backend "s3" {}
-
-}
-
-provider "aws" {
-  region  = var.aws_region
-  profile = var.aws_profile
 }
 
 locals {
-  suffix          = "-${var.stage}-${var.app_name}"
+  suffix           = "-${var.stage}-${var.app_name}"
   full_domain_name = "${var.app_name}-${var.stage}.${var.base_domain_name}"
-  
+  zone_id          = var.hosted_zone_id
+
   common_tags = {
     "framework"         = "planar"
     "framework.version" = "0.17"
@@ -44,10 +37,6 @@ data "aws_subnets" "private" {
     name   = "subnet-id"
     values = var.subnets
   }
-}
-
-data "aws_route53_zone" "main" {
-  name = var.base_domain_name
 }
 
 data "aws_region" "current" {}
