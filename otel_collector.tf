@@ -5,7 +5,6 @@ locals {
     extensions:
       health_check:
         endpoint: 0.0.0.0:13133
-        path: /health/status
 
     receivers:
       otlp:
