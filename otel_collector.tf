@@ -1,6 +1,23 @@
 locals {
   otel_metrics_receivers = var.enable_ecs_container_metrics ? "otlp, awsecscontainermetrics" : "otlp"
   otel_ecs_receiver_block = var.enable_ecs_container_metrics ? "      awsecscontainermetrics: {}\n" : ""
+  otel_metrics_processors = var.enable_ecs_container_metrics ? "filter/ecs_metrics, batch" : "batch"
+  otel_ecs_filter_block = var.enable_ecs_container_metrics ? <<-FILTER
+      filter/ecs_metrics:
+        metrics:
+          include:
+            match_type: strict
+            metric_names:
+              - ecs.task.cpu.reserved
+              - ecs.task.cpu.utilized
+              - ecs.task.memory.reserved
+              - ecs.task.memory.utilized
+              - container.cpu.reserved
+              - container.cpu.utilized
+              - container.memory.reserved
+              - container.memory.utilized
+  FILTER
+  : ""
 
   # Extracted to a separate local so the heredoc isn't nested inside a ternary expression,
   # which causes Terraform to fail to parse the false branch.
@@ -20,6 +37,7 @@ ${local.otel_ecs_receiver_block}
 
     processors:
       batch: {}
+${local.otel_ecs_filter_block}
 
     exporters:
       otlphttp/metrics:
@@ -32,7 +50,7 @@ ${local.otel_ecs_receiver_block}
       pipelines:
         metrics:
           receivers: [${local.otel_metrics_receivers}]
-          processors: [batch]
+          processors: [${local.otel_metrics_processors}]
           exporters: [otlphttp/metrics]
     YAML
 

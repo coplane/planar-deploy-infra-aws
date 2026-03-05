@@ -186,7 +186,7 @@ variable "telemetry_enabled" {
 }
 
 variable "enable_ecs_container_metrics" {
-  description = "Enable the ECS container metrics receiver in the OTEL collector"
+  description = "Enable the ECS container metrics receiver in the OTEL collector. When enabled, exports only: ecs.task.cpu.reserved, ecs.task.cpu.utilized, ecs.task.memory.reserved, ecs.task.memory.utilized, container.cpu.reserved, container.cpu.utilized, container.memory.reserved, container.memory.utilized."
   type        = bool
   default     = false
 }
