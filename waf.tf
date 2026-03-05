@@ -1,3 +1,37 @@
+locals {
+  default_waf_rules = [
+    {
+      name    = "aws-common-rules"
+      managed = "AWSManagedRulesCommonRuleSet"
+      metric  = "waf-common-rules"
+      vendor  = "AWS"
+    },
+    {
+      name    = "aws-known-bad-inputs"
+      managed = "AWSManagedRulesKnownBadInputsRuleSet"
+      metric  = "waf-known-bad-inputs"
+      vendor  = "AWS"
+    },
+    {
+      name    = "aws-sqli"
+      managed = "AWSManagedRulesSQLiRuleSet"
+      metric  = "waf-sqli"
+      vendor  = "AWS"
+    },
+  ]
+
+  extra_waf_rules = [
+    for rule in var.waf_managed_rule_groups : {
+      name    = rule.name
+      managed = rule.name
+      metric  = rule.metric
+      vendor  = rule.vendor
+    }
+  ]
+
+  all_waf_rules = concat(local.default_waf_rules, local.extra_waf_rules)
+}
+
 resource "aws_wafv2_web_acl" "main" {
   count = var.create_waf ? 1 : 0
 
@@ -8,47 +42,29 @@ resource "aws_wafv2_web_acl" "main" {
     allow {}
   }
 
-  rule {
-    name     = "aws-common-rules"
-    priority = 1
+  dynamic "rule" {
+    for_each = { for idx, rule in local.all_waf_rules : idx => rule }
 
-    override_action {
-      none {}
-    }
+    content {
+      name     = rule.value.name
+      priority = rule.key + 1
 
-    statement {
-      managed_rule_group_statement {
-        name        = "AWSManagedRulesCommonRuleSet"
-        vendor_name = "AWS"
+      override_action {
+        none {}
       }
-    }
 
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "waf-common-rules${local.suffix}"
-      sampled_requests_enabled   = true
-    }
-  }
-
-  rule {
-    name     = "aws-known-bad-inputs"
-    priority = 2
-
-    override_action {
-      none {}
-    }
-
-    statement {
-      managed_rule_group_statement {
-        name        = "AWSManagedRulesKnownBadInputsRuleSet"
-        vendor_name = "AWS"
+      statement {
+        managed_rule_group_statement {
+          name        = rule.value.managed
+          vendor_name = rule.value.vendor
+        }
       }
-    }
 
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "waf-known-bad-inputs${local.suffix}"
-      sampled_requests_enabled   = true
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${rule.value.metric}${local.suffix}"
+        sampled_requests_enabled   = true
+      }
     }
   }
 

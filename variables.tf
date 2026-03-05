@@ -130,9 +130,19 @@ variable "alb_internal" {
 }
 
 variable "create_waf" {
-  description = "Create a WAFv2 Web ACL with AWS managed rules (CommonRuleSet, KnownBadInputsRuleSet) and attach it to the ALB. Ignored if waf_web_acl_arn is provided."
+  description = "Create a WAFv2 Web ACL with AWS managed rules (CommonRuleSet, KnownBadInputsRuleSet, SQLiRuleSet) and attach it to the ALB. Ignored if waf_web_acl_arn is provided."
   type        = bool
   default     = false
+}
+
+variable "waf_managed_rule_groups" {
+  description = "Additional AWS managed rule groups to append to the default WAF rules."
+  type = list(object({
+    name   = string
+    metric = string
+    vendor = optional(string, "AWS")
+  }))
+  default = []
 }
 
 variable "waf_web_acl_arn" {
