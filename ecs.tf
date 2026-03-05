@@ -262,11 +262,6 @@ resource "aws_ecs_service" "main" {
     aws_lb_listener.https,
   ]
 
-  # Ignore changes to the task definition to prevent reverting a deployment made by an external tool (like a CI/CD pipeline pushing a new image tag)
-  lifecycle {
-    ignore_changes = [task_definition]
-  }
-
   tags = local.common_tags
 }
 
