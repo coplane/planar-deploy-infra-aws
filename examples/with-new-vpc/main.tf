@@ -40,9 +40,9 @@ module "planar" {
   subnets     = module.vpc.private_subnet_ids
   alb_subnets = module.vpc.public_subnet_ids
 
-  container_registry_url      = "ghcr.io"
-  container_image_name        = "coplane/planar-demo-public"
-  container_image_tag         = "latest"
+  container_registry_url = "ghcr.io"
+  container_image_name   = "coplane/planar-demo-public"
+  container_image_tag    = "latest"
 
   # Alternatively, you can create ECR and import the public demo image to it using:
   # import_image_to_ecr = true

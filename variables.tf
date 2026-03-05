@@ -70,7 +70,7 @@ variable "aurora_min_capacity" {
 }
 
 variable "aurora_max_capacity" {
-  description = "Maximum Aurora Serverless v2 capacity (ACUs)"  
+  description = "Maximum Aurora Serverless v2 capacity (ACUs)"
   type        = number
   default     = 2.0
 }
