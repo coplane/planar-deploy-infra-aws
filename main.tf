@@ -9,6 +9,10 @@ terraform {
       source  = "hashicorp/random"
       version = ">= 3.1"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = ">= 3.2"
+    }
   }
 }
 
@@ -32,12 +36,4 @@ data "aws_vpc" "main" {
   id = var.vpc_id
 }
 
-data "aws_subnets" "private" {
-  filter {
-    name   = "subnet-id"
-    values = var.subnets
-  }
-}
-
 data "aws_region" "current" {}
-data "aws_caller_identity" "current" {}
