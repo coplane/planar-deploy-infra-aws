@@ -1,4 +1,7 @@
 locals {
+  otel_metrics_receivers = var.enable_ecs_container_metrics ? "otlp, awsecscontainermetrics" : "otlp"
+  otel_ecs_receiver_block = var.enable_ecs_container_metrics ? "      awsecscontainermetrics: {}\n" : ""
+
   # Extracted to a separate local so the heredoc isn't nested inside a ternary expression,
   # which causes Terraform to fail to parse the false branch.
   _otel_base_config_yaml = <<-YAML
@@ -13,7 +16,7 @@ locals {
             endpoint: 0.0.0.0:4317
           http:
             endpoint: 0.0.0.0:4318
-      awsecscontainermetrics: {}
+${local.otel_ecs_receiver_block}
 
     processors:
       batch: {}
@@ -28,7 +31,7 @@ locals {
       extensions: [health_check]
       pipelines:
         metrics:
-          receivers: [otlp, awsecscontainermetrics]
+          receivers: [${local.otel_metrics_receivers}]
           processors: [batch]
           exporters: [otlphttp/metrics]
     YAML

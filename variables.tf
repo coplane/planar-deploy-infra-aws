@@ -185,6 +185,12 @@ variable "telemetry_enabled" {
   default     = true
 }
 
+variable "enable_ecs_container_metrics" {
+  description = "Enable the ECS container metrics receiver in the OTEL collector"
+  type        = bool
+  default     = false
+}
+
 variable "metrics_endpoint" {
   description = "OTLP HTTP base URL for the metrics exporter (Coplane telemetry gateway). Required when telemetry_enabled = true."
   type        = string
