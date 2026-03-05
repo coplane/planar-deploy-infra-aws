@@ -1,0 +1,46 @@
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+%{ if enable_ecs_container_metrics ~}
+  awsecscontainermetrics: {}
+%{ endif ~}
+
+processors:
+%{ if enable_ecs_container_metrics ~}
+  filter/ecs_metrics:
+    metrics:
+      include:
+        match_type: strict
+        metric_names:
+          - ecs.task.cpu.reserved
+          - ecs.task.cpu.utilized
+          - ecs.task.memory.reserved
+          - ecs.task.memory.utilized
+          - container.cpu.reserved
+          - container.cpu.utilized
+          - container.memory.reserved
+          - container.memory.utilized
+%{ endif ~}
+  batch: {}
+
+exporters:
+  otlphttp/metrics:
+    endpoint: ${metrics_endpoint}
+    headers:
+      authorization: "Bearer ${telemetry_token}"
+
+service:
+  extensions: [health_check]
+  pipelines:
+    metrics:
+      receivers: [otlp%{ if enable_ecs_container_metrics }, awsecscontainermetrics%{ endif }]
+      processors: [%{ if enable_ecs_container_metrics }filter/ecs_metrics, %{ endif }batch]
+      exporters: [otlphttp/metrics]
