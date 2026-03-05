@@ -129,6 +129,29 @@ variable "alb_internal" {
   default     = false
 }
 
+variable "alb_access_logs_enabled" {
+  description = "Enable ALB access logging (requires alb_access_logs_bucket)"
+  type        = bool
+  default     = false
+}
+
+variable "alb_access_logs_bucket" {
+  description = "S3 bucket name for ALB access logs (required when alb_access_logs_enabled = true)"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = !var.alb_access_logs_enabled || var.alb_access_logs_bucket != null
+    error_message = "alb_access_logs_bucket is required when alb_access_logs_enabled = true."
+  }
+}
+
+variable "alb_access_logs_prefix" {
+  description = "S3 key prefix for ALB access logs"
+  type        = string
+  default     = null
+}
+
 variable "create_waf" {
   description = "Create a WAFv2 Web ACL with AWS managed rules (CommonRuleSet, KnownBadInputsRuleSet, SQLiRuleSet) and attach it to the ALB. Ignored if waf_web_acl_arn is provided."
   type        = bool
@@ -191,6 +214,17 @@ variable "enable_ecs_container_metrics" {
   default     = false
 }
 
+variable "ecs_container_insights" {
+  description = "ECS Container Insights setting for the cluster (disabled, enabled, enhanced)"
+  type        = string
+  default     = "enhanced"
+
+  validation {
+    condition     = contains(["disabled", "enabled", "enhanced"], var.ecs_container_insights)
+    error_message = "ecs_container_insights must be one of: disabled, enabled, enhanced."
+  }
+}
+
 variable "metrics_endpoint" {
   description = "OTLP HTTP base URL for the metrics exporter (Coplane telemetry gateway). Required when telemetry_enabled = true."
   type        = string
@@ -212,6 +246,30 @@ variable "log_output_secrets" {
   description = "Secrets to inject into the OTel Collector container for log exporter credentials. Map of env var name to Secrets Manager ARN."
   type        = map(string)
   default     = {}
+}
+
+variable "ecs_log_retention_days" {
+  description = "CloudWatch log retention (days) for app ECS logs"
+  type        = number
+  default     = 14
+}
+
+variable "otel_log_retention_days" {
+  description = "CloudWatch log retention (days) for OTEL collector logs"
+  type        = number
+  default     = 7
+}
+
+variable "rds_performance_insights_enabled" {
+  description = "Enable RDS Performance Insights"
+  type        = bool
+  default     = true
+}
+
+variable "rds_monitoring_interval" {
+  description = "RDS enhanced monitoring interval in seconds (0 to disable)"
+  type        = number
+  default     = 60
 }
 
 variable "telemetry_token" {

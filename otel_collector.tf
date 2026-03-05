@@ -61,7 +61,7 @@ resource "aws_cloudwatch_log_group" "otel_collector" {
   count = var.telemetry_enabled ? 1 : 0
 
   name              = "/ecs/otel-collector${local.suffix}"
-  retention_in_days = 7
+  retention_in_days = var.otel_log_retention_days
 
   tags = local.common_tags
 }
