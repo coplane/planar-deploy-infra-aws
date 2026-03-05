@@ -136,9 +136,13 @@ variable "create_waf" {
 }
 
 variable "waf_managed_rule_groups" {
-  description = "Additional AWS managed rule group names to append to the default WAF rules."
-  type        = list(string)
-  default     = []
+  description = "Additional AWS managed rule groups to append to the default WAF rules."
+  type = list(object({
+    name   = string
+    metric = string
+    vendor = optional(string, "AWS")
+  }))
+  default = []
 }
 
 variable "waf_web_acl_arn" {

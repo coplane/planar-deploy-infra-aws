@@ -4,24 +4,28 @@ locals {
       name    = "aws-common-rules"
       managed = "AWSManagedRulesCommonRuleSet"
       metric  = "waf-common-rules"
+      vendor  = "AWS"
     },
     {
       name    = "aws-known-bad-inputs"
       managed = "AWSManagedRulesKnownBadInputsRuleSet"
       metric  = "waf-known-bad-inputs"
+      vendor  = "AWS"
     },
     {
       name    = "aws-sqli"
       managed = "AWSManagedRulesSQLiRuleSet"
       metric  = "waf-sqli"
+      vendor  = "AWS"
     },
   ]
 
   extra_waf_rules = [
-    for managed in var.waf_managed_rule_groups : {
-      name    = "aws-${replace(lower(regexreplace(managed, \"([a-z])([A-Z])\", \"$1-$2\")), \"aws-managed-rules-\", \"\")}"
-      managed = managed
-      metric  = "waf-${replace(lower(regexreplace(managed, \"([a-z])([A-Z])\", \"$1-$2\")), \"aws-managed-rules-\", \"\")}"
+    for rule in var.waf_managed_rule_groups : {
+      name    = rule.name
+      managed = rule.name
+      metric  = rule.metric
+      vendor  = rule.vendor
     }
   ]
 
@@ -52,7 +56,7 @@ resource "aws_wafv2_web_acl" "main" {
       statement {
         managed_rule_group_statement {
           name        = rule.value.managed
-          vendor_name = "AWS"
+          vendor_name = rule.value.vendor
         }
       }
 
