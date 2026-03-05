@@ -8,22 +8,22 @@ resource "aws_db_subnet_group" "main" {
 }
 
 resource "aws_rds_cluster" "main" {
-  cluster_identifier      = "aurora-pg${local.suffix}"
-  engine                  = "aurora-postgresql"
-  engine_version          = "16.6"
-  database_name           = "appdb"
-  master_username         = "dbadmin"
-  manage_master_user_password = true
+  cluster_identifier            = "aurora-pg${local.suffix}"
+  engine                        = "aurora-postgresql"
+  engine_version                = "16.6"
+  database_name                 = "appdb"
+  master_username               = "dbadmin"
+  manage_master_user_password   = true
   master_user_secret_kms_key_id = null
-  backup_retention_period = var.backup_retention_days
-  preferred_backup_window = "03:00-04:00"
-  
+  backup_retention_period       = var.backup_retention_days
+  preferred_backup_window       = "03:00-04:00"
+
   vpc_security_group_ids = [aws_security_group.rds.id]
   db_subnet_group_name   = aws_db_subnet_group.main.name
-  
-  storage_encrypted   = true
-  deletion_protection = var.stage == "prod" ? true : false
-  skip_final_snapshot = var.stage != "prod" ? true : false
+
+  storage_encrypted         = true
+  deletion_protection       = var.stage == "prod" ? true : false
+  skip_final_snapshot       = var.stage != "prod" ? true : false
   final_snapshot_identifier = var.stage == "prod" ? "aurora-pg${local.suffix}-final-snapshot-${formatdate("YYYY-MM-DD-hhmm", timestamp())}" : null
 
   serverlessv2_scaling_configuration {
@@ -49,9 +49,9 @@ resource "aws_rds_cluster_instance" "cluster_instances" {
   engine             = aws_rds_cluster.main.engine
   engine_version     = aws_rds_cluster.main.engine_version
 
-  performance_insights_enabled = true
-  monitoring_interval          = 60
-  monitoring_role_arn          = aws_iam_role.rds_monitoring.arn
+  performance_insights_enabled = var.rds_performance_insights_enabled
+  monitoring_interval          = var.rds_monitoring_interval
+  monitoring_role_arn          = var.rds_monitoring_interval > 0 ? aws_iam_role.rds_monitoring[0].arn : null
 
   tags = merge(local.common_tags, {
     Name = "aurora-pg${local.suffix}-writer"
@@ -63,7 +63,8 @@ data "aws_secretsmanager_secret" "db_secret" {
 }
 
 resource "aws_iam_role" "rds_monitoring" {
-  name = "rds-monitoring-role${local.suffix}"
+  count = var.rds_monitoring_interval > 0 ? 1 : 0
+  name  = "rds-monitoring-role${local.suffix}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -82,6 +83,7 @@ resource "aws_iam_role" "rds_monitoring" {
 }
 
 resource "aws_iam_role_policy_attachment" "rds_monitoring" {
-  role       = aws_iam_role.rds_monitoring.name
+  count      = var.rds_monitoring_interval > 0 ? 1 : 0
+  role       = aws_iam_role.rds_monitoring[0].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
 }

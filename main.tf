@@ -20,11 +20,11 @@ locals {
   common_tags = {
     "framework"         = "planar"
     "framework.version" = "0.17"
-    "stage"            = var.stage
-    "app.name"         = var.app_name
-    "app.version"      = "0.0.1"
-    "vendor_name"      = "CoPlane"
-    "vendor_contact"   = "support@coplane.com"
+    "stage"             = var.stage
+    "app.name"          = var.app_name
+    "app.version"       = "0.0.1"
+    "vendor_name"       = "CoPlane"
+    "vendor_contact"    = "support@coplane.com"
   }
 }
 

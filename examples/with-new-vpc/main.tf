@@ -40,9 +40,9 @@ module "planar" {
   subnets     = module.vpc.private_subnet_ids
   alb_subnets = module.vpc.public_subnet_ids
 
-  container_registry_url      = "ghcr.io"
-  container_image_name        = "coplane/planar-demo-public"
-  container_image_tag         = "latest"
+  container_registry_url = "ghcr.io"
+  container_image_name   = "coplane/planar-demo-public"
+  container_image_tag    = "latest"
 
   # Alternatively, you can create ECR and import the public demo image to it using:
   # import_image_to_ecr = true
@@ -51,6 +51,16 @@ module "planar" {
   # WorkOS authentication
   workos_client_id = "client_xxx"
   workos_org_id    = "org_xxx"
+
+  # Cost controls (optional)
+  # ecs_container_insights = "disabled"
+  # ecs_log_retention_days = 7
+  # otel_log_retention_days = 7
+  # rds_performance_insights_enabled = false
+  # rds_monitoring_interval = 0
+  # alb_access_logs_enabled = true
+  # alb_access_logs_bucket  = "my-central-alb-logs"
+  # alb_access_logs_prefix  = "planar/prod"
 }
 
 output "app_endpoint_url" {

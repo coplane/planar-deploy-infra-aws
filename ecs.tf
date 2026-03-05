@@ -3,7 +3,7 @@ resource "aws_ecs_cluster" "main" {
 
   setting {
     name  = "containerInsights"
-    value = "enhanced"
+    value = var.ecs_container_insights
   }
 
   tags = local.common_tags
@@ -23,7 +23,7 @@ resource "aws_ecs_cluster_capacity_providers" "main" {
 
 resource "aws_cloudwatch_log_group" "ecs" {
   name              = "/ecs/planar-service${local.suffix}"
-  retention_in_days = 14
+  retention_in_days = var.ecs_log_retention_days
 
   tags = local.common_tags
 }
@@ -186,6 +186,15 @@ resource "aws_lb" "main" {
   subnets            = var.alb_subnets != null ? var.alb_subnets : var.subnets
 
   enable_deletion_protection = var.stage == "prod" ? true : false
+
+  dynamic "access_logs" {
+    for_each = var.alb_access_logs_enabled ? [1] : []
+    content {
+      enabled = true
+      bucket  = var.alb_access_logs_bucket
+      prefix  = var.alb_access_logs_prefix
+    }
+  }
 
   tags = local.common_tags
 }
