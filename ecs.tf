@@ -189,6 +189,10 @@ resource "aws_lb" "main" {
 
   enable_deletion_protection = var.stage == "prod" ? true : false
 
+  lifecycle {
+    prevent_destroy = true
+  }
+
   dynamic "access_logs" {
     for_each = var.alb_access_logs_enabled ? [1] : []
     content {

@@ -38,7 +38,8 @@ resource "aws_rds_cluster" "main" {
   })
 
   lifecycle {
-    ignore_changes = [final_snapshot_identifier]
+    prevent_destroy = true
+    ignore_changes  = [final_snapshot_identifier]
   }
 }
 
