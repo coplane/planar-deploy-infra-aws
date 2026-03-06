@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/coplane/planar-deploy-infra-aws/compare/v0.1.0...v0.2.0) (2026-03-06)
+
+
+### Features
+
+* add ignore_task_definition_changes toggle for external CI/CD deploys ([#22](https://github.com/coplane/planar-deploy-infra-aws/issues/22)) ([aa76608](https://github.com/coplane/planar-deploy-infra-aws/commit/aa76608ce198e59813cea9ce7d2f07198b4cb21f))
+
 ## 0.1.0 (2026-03-06)
 
 
