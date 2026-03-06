@@ -260,6 +260,12 @@ variable "otel_log_retention_days" {
   default     = 7
 }
 
+variable "ignore_task_definition_changes" {
+  description = "Whether changes to the ECS service task_definition should be ignored. Enable when an external CI/CD pipeline (not Terraform) deploys new task definition revisions."
+  type        = bool
+  default     = false
+}
+
 variable "rds_performance_insights_enabled" {
   description = "Enable RDS Performance Insights"
   type        = bool

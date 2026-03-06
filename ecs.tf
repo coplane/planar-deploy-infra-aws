@@ -175,6 +175,8 @@ resource "aws_ecs_task_definition" "main" {
     ] : []
   ))
 
+  track_latest = var.ignore_task_definition_changes
+
   tags = local.common_tags
 }
 
@@ -234,11 +236,21 @@ resource "aws_lb_listener" "https" {
   }
 }
 
+locals {
+  ecs_service_config = {
+    name            = "planar-service${local.suffix}"
+    cluster         = aws_ecs_cluster.main.id
+    task_definition = aws_ecs_task_definition.main.arn
+    desired_count   = var.desired_count
+  }
+}
+
 resource "aws_ecs_service" "main" {
-  name            = "planar-service${local.suffix}"
-  cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.main.arn
-  desired_count   = var.desired_count
+  count           = var.ignore_task_definition_changes ? 0 : 1
+  name            = local.ecs_service_config.name
+  cluster         = local.ecs_service_config.cluster
+  task_definition = local.ecs_service_config.task_definition
+  desired_count   = local.ecs_service_config.desired_count
   launch_type     = "FARGATE"
 
   deployment_maximum_percent         = 200
@@ -263,6 +275,42 @@ resource "aws_ecs_service" "main" {
   ]
 
   tags = local.common_tags
+}
+
+resource "aws_ecs_service" "ignore_task_definition" {
+  count           = var.ignore_task_definition_changes ? 1 : 0
+  name            = local.ecs_service_config.name
+  cluster         = local.ecs_service_config.cluster
+  task_definition = local.ecs_service_config.task_definition
+  desired_count   = local.ecs_service_config.desired_count
+  launch_type     = "FARGATE"
+
+  deployment_maximum_percent         = 200
+  deployment_minimum_healthy_percent = 50
+
+  network_configuration {
+    security_groups  = [aws_security_group.ecs_tasks.id]
+    subnets          = var.subnets
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.main.arn
+    container_name   = "planar-app"
+    container_port   = 8000
+  }
+
+  health_check_grace_period_seconds = 60
+
+  depends_on = [
+    aws_lb_listener.https,
+  ]
+
+  tags = local.common_tags
+
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
 }
 
 resource "aws_wafv2_web_acl_association" "alb" {

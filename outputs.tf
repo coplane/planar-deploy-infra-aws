@@ -15,7 +15,7 @@ output "ecs_cluster_name" {
 
 output "ecs_service_name" {
   description = "Name of the ECS service"
-  value       = aws_ecs_service.main.name
+  value       = var.ignore_task_definition_changes ? aws_ecs_service.ignore_task_definition[0].name : aws_ecs_service.main[0].name
 }
 
 output "rds_cluster_endpoint" {
