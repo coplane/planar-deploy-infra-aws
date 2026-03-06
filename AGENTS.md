@@ -30,9 +30,9 @@ Breaking changes:
 - Use `!` after type/scope, for example: `feat!: change module input contract`
 - Include a clear description of the impact in the PR body.
 
-## Commit messages
+## Commit messages and PR titles
 
-Commit message style is recommended but not enforced. PR title style is enforced in CI and is the source of truth for release notes/versioning.
+Use conventional commit format for both commit messages and PR titles. PR title format is enforced in CI and is the source of truth for release notes/versioning. Always include the `<type>:` prefix — PRs will fail CI without it.
 
 ## Release automation
 
