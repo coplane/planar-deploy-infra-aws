@@ -5,6 +5,10 @@ resource "aws_s3_bucket" "app_bucket" {
   tags = merge(local.common_tags, {
     Name = "planar${local.suffix}"
   })
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "random_string" "bucket_suffix" {
