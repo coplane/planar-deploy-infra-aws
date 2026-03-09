@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/coplane/planar-deploy-infra-aws/compare/v0.2.0...v0.3.0) (2026-03-09)
+
+
+### Features
+
+* add prevent_destroy to RDS, ALB, and S3 ([#25](https://github.com/coplane/planar-deploy-infra-aws/issues/25)) ([1138cba](https://github.com/coplane/planar-deploy-infra-aws/commit/1138cba86baddb58be960361cc22e936a49cc135))
+
 ## [0.2.0](https://github.com/coplane/planar-deploy-infra-aws/compare/v0.1.0...v0.2.0) (2026-03-06)
 
 
