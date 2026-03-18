@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/coplane/planar-deploy-infra-aws/compare/v0.3.0...v0.4.0) (2026-03-18)
+
+
+### Features
+
+* enable ECS deployment circuit breaker with rollback ([#27](https://github.com/coplane/planar-deploy-infra-aws/issues/27)) ([d565821](https://github.com/coplane/planar-deploy-infra-aws/commit/d5658215a88324619124c11d7b2e3a16b94b0a70))
+
 ## [0.3.0](https://github.com/coplane/planar-deploy-infra-aws/compare/v0.2.0...v0.3.0) (2026-03-09)
 
 
