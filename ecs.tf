@@ -260,6 +260,11 @@ resource "aws_ecs_service" "main" {
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 50
 
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
+
   network_configuration {
     security_groups  = [aws_security_group.ecs_tasks.id]
     subnets          = var.subnets
@@ -291,6 +296,11 @@ resource "aws_ecs_service" "ignore_task_definition" {
 
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 50
+
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
 
   network_configuration {
     security_groups  = [aws_security_group.ecs_tasks.id]
