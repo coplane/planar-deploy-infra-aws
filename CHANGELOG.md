@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/coplane/planar-deploy-infra-aws/compare/v0.4.0...v0.4.1) (2026-04-02)
+
+
+### Bug Fixes
+
+* make Aurora engine version configurable ([#31](https://github.com/coplane/planar-deploy-infra-aws/issues/31)) ([be611e0](https://github.com/coplane/planar-deploy-infra-aws/commit/be611e0172386be210ca0d49844151b8abb8c0a5))
+
 ## [0.4.0](https://github.com/coplane/planar-deploy-infra-aws/compare/v0.3.0...v0.4.0) (2026-03-18)
 
 
