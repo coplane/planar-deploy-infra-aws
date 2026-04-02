@@ -217,7 +217,7 @@ variable "enable_ecs_container_metrics" {
 variable "ecs_container_insights" {
   description = "ECS Container Insights setting for the cluster (disabled, enabled, enhanced)"
   type        = string
-  default     = "enhanced"
+  default     = "disabled"
 
   validation {
     condition     = contains(["disabled", "enabled", "enhanced"], var.ecs_container_insights)

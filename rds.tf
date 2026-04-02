@@ -10,7 +10,7 @@ resource "aws_db_subnet_group" "main" {
 resource "aws_rds_cluster" "main" {
   cluster_identifier            = "aurora-pg${local.suffix}"
   engine                        = "aurora-postgresql"
-  engine_version                = "16.6"
+  engine_version                = "16"
   database_name                 = "appdb"
   master_username               = "dbadmin"
   manage_master_user_password   = true
@@ -39,7 +39,7 @@ resource "aws_rds_cluster" "main" {
 
   lifecycle {
     prevent_destroy = true
-    ignore_changes  = [final_snapshot_identifier]
+    ignore_changes  = [engine_version, final_snapshot_identifier]
   }
 }
 
@@ -48,7 +48,6 @@ resource "aws_rds_cluster_instance" "cluster_instances" {
   cluster_identifier = aws_rds_cluster.main.id
   instance_class     = "db.serverless"
   engine             = aws_rds_cluster.main.engine
-  engine_version     = aws_rds_cluster.main.engine_version
 
   performance_insights_enabled = var.rds_performance_insights_enabled
   monitoring_interval          = var.rds_monitoring_interval
