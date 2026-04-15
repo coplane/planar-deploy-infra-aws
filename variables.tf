@@ -202,6 +202,12 @@ variable "workos_org_id" {
   type        = string
 }
 
+variable "custom_environment_variables" {
+  description = "Map of custom environment variables to add to the ECS task"
+  type        = map(string)
+  default     = {}
+}
+
 variable "telemetry_enabled" {
   description = "Add an OTel Collector sidecar for metrics and log forwarding. Disable to opt out."
   type        = bool

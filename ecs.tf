@@ -95,6 +95,7 @@ resource "aws_ecs_task_definition" "main" {
                 value = var.workos_org_id
               }
             ],
+            [for k, v in var.custom_environment_variables : { name = k, value = v }],
             var.telemetry_enabled ? [
               {
                 name  = "OTEL_EXPORTER_OTLP_ENDPOINT"
