@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/coplane/planar-deploy-infra-aws/compare/v0.4.1...v0.5.0) (2026-04-15)
+
+
+### Features
+
+* Add custom environment variables support for ECS task definition ([#34](https://github.com/coplane/planar-deploy-infra-aws/issues/34)) ([01ac6d5](https://github.com/coplane/planar-deploy-infra-aws/commit/01ac6d5cc4ba31766cbb9369903eeee981c9adf9))
+
 ## [0.4.1](https://github.com/coplane/planar-deploy-infra-aws/compare/v0.4.0...v0.4.1) (2026-04-02)
 
 
