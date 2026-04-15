@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 1
 
       - name: Claude Code
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@3534c326a5e0ddfeff5df4e6634a1b967b357560 # v1 — pinned before broken restore-config (issue #1220)
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           track_progress: true
