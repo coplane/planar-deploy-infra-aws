@@ -10,6 +10,12 @@ variable "app_name" {
   type        = string
 }
 
+variable "customer_name" {
+  description = "Customer name for OTel resource attributes. Defaults to app_name if not set."
+  type        = string
+  default     = null
+}
+
 variable "stage" {
   description = "Stage/environment name"
   type        = string

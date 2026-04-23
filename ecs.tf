@@ -107,7 +107,7 @@ resource "aws_ecs_task_definition" "main" {
               },
               {
                 name  = "OTEL_RESOURCE_ATTRIBUTES"
-                value = "deployment.environment=${var.stage},customer.name=${var.app_name}"
+                value = "deployment.environment=${var.stage},customer.name=${coalesce(var.customer_name, var.app_name)},service.name=${var.app_name}"
               }
             ] : []
           )
