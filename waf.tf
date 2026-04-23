@@ -57,6 +57,16 @@ resource "aws_wafv2_web_acl" "main" {
         managed_rule_group_statement {
           name        = rule.value.managed
           vendor_name = rule.value.vendor
+
+          dynamic "rule_action_override" {
+            for_each = rule.value.managed == "AWSManagedRulesCommonRuleSet" ? ["SizeRestrictions_BODY"] : []
+            content {
+              name = rule_action_override.value
+              action_to_use {
+                count {}
+              }
+            }
+          }
         }
       }
 
