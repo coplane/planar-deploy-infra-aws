@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/coplane/planar-deploy-infra-aws/compare/v0.5.0...v0.5.1) (2026-04-23)
+
+
+### Bug Fixes
+
+* override SizeRestrictions_BODY to Count in WAF common ruleset ([#38](https://github.com/coplane/planar-deploy-infra-aws/issues/38)) ([00d133c](https://github.com/coplane/planar-deploy-infra-aws/commit/00d133c6ae20342738014bea7d41d65c77695719))
+
 ## [0.5.0](https://github.com/coplane/planar-deploy-infra-aws/compare/v0.4.1...v0.5.0) (2026-04-15)
 
 
