@@ -1,11 +1,15 @@
 resource "aws_secretsmanager_secret" "custom_secret" {
   name                    = "custom-secret${local.suffix}"
   description             = "Custom secret for application configuration"
-  recovery_window_in_days = var.stage == "prod" ? 30 : 0
+  recovery_window_in_days = var.stage == "prod" ? 30 : 7
 
   tags = merge(local.common_tags, {
     Name = "custom-secret${local.suffix}"
   })
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_secretsmanager_secret_version" "custom_secret" {
