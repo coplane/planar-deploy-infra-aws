@@ -42,7 +42,7 @@ resource "aws_ecs_task_definition" "main" {
       merge(
         {
           name  = "planar-app"
-          image = var.repository_name != null ? "${aws_ecr_repository.main[0].repository_url}:latest" : "${var.container_registry_url}/${var.container_image_name}:${var.container_image_tag}"
+          image = var.repository_name != null ? "${aws_ecr_repository.main[0].repository_url}:${var.container_image_tag}" : "${var.container_registry_url}/${var.container_image_name}:${var.container_image_tag}"
 
           portMappings = [
             {
