@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.6.0](https://github.com/coplane/planar-deploy-infra-aws/compare/v0.5.1...v0.6.0) (2026-04-23)
+
+
+### Features
+
+* separate customer.name and service.name in OTel resource attributes [CPLN-1016]  ([#40](https://github.com/coplane/planar-deploy-infra-aws/issues/40)) ([19b9d1c](https://github.com/coplane/planar-deploy-infra-aws/commit/19b9d1ce35cd3144ceb2609a8f833e3ce12fc494))
+
+
+### Bug Fixes
+
+* protect custom secret from accidental deletion ([#41](https://github.com/coplane/planar-deploy-infra-aws/issues/41)) ([4b0c597](https://github.com/coplane/planar-deploy-infra-aws/commit/4b0c597c78da1ea2ce2a67f9d6807b1841d23a32))
+
 ## [0.5.1](https://github.com/coplane/planar-deploy-infra-aws/compare/v0.5.0...v0.5.1) (2026-04-23)
 
 
